@@ -1,18 +1,29 @@
-// Test import of a JavaScript module
-import { example } from '@/js/example'
+import AFRAME from 'aframe'
+import 'aframe-extras'
+import { animateIn } from './animate'
+import sceneHtml from './scene.html'
 
-// Test import of an asset
-import webpackLogo from '@/images/webpack-logo.svg'
+console.log('AFRAME', sceneHtml)
 
-// Test import of styles
-import '@/styles/index.scss'
+AFRAME.registerComponent('model', {
+  init: () => {
+    model.addEventListener('model-loaded', () => {
+      console.log(model, animateIn)
+      animateIn(model.object3D, model.sceneEl)
+    })
+  },
+})
 
-// Appending to the DOM
-const logo = document.createElement('img')
-logo.src = webpackLogo
+const insertHtml = (sceneHtml) => {
+  const html = document.getElementsByTagName('html')[0]
+  const origHtmlClass = html.className
+  document.body.insertAdjacentHTML('beforeend', sceneHtml)
+  // Cleanup
+  return () => {
+    const ascene = document.getElementsByTagName('a-scene')[0]
+    ascene.parentNode.removeChild(ascene)
+    html.className = origHtmlClass
+  }
+}
 
-const heading = document.createElement('h1')
-heading.textContent = example()
-
-const app = document.querySelector('#root')
-app.append(logo, heading)
+insertHtml(sceneHtml)

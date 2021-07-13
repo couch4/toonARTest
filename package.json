@@ -1,11 +1,11 @@
 {
   "name": "webpack-boilerplate",
   "version": "2.0.1",
-  "description": "Sensible webpack 5 boilerplate using Babel and PostCSS with a hot dev server and an optimized production build.",
+  "description": "converse aframe",
   "main": "index.js",
-  "author": "Tania Rascia",
   "license": "MIT",
   "scripts": {
+    "start-dev": "webpack-dev-server --mode development --config config/webpack.dev.js",
     "start": "cross-env NODE_ENV=development webpack serve --config config/webpack.dev.js",
     "build": "cross-env NODE_ENV=production webpack --config config/webpack.prod.js",
     "lint": "eslint . src config || true"
@@ -49,5 +49,12 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:taniarascia/webpack-boilerplate"
+  },
+  "dependencies": {
+    "aframe": "^1.2.0",
+    "aframe-extras": "^6.1.1",
+    "gsap": "^3.7.0",
+    "html-loader": "^2.1.2",
+    "three": "^0.130.1"
   }
 }

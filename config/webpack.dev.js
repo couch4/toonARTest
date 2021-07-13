@@ -9,7 +9,7 @@ module.exports = merge(common, {
   mode: 'development',
 
   // Control how source maps are generated
-  devtool: 'inline-source-map',
+  devtool: false,
 
   // Spin up a server for quick development
   devServer: {
@@ -30,10 +30,11 @@ module.exports = merge(common, {
           'style-loader',
           {
             loader: 'css-loader',
-            options: { sourceMap: true, importLoaders: 1, modules: true },
+            options: { sourceMap: false, importLoaders: 1, modules: true },
           },
-          { loader: 'postcss-loader', options: { sourceMap: true } },
-          { loader: 'sass-loader', options: { sourceMap: true } },
+          { loader: 'html-loader', options: { sourceMap: false } },
+          { loader: 'postcss-loader', options: { sourceMap: false } },
+          { loader: 'sass-loader', options: { sourceMap: false } },
         ],
       },
     ],

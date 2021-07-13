@@ -1,0 +1,76 @@
+<a-scene
+  vr-mode-ui="enabled: false"
+  shadow="enabled: true, autoUpdate: true"
+  background="color: #121219"
+  loading-screen="enabled: false"
+  renderer="antialias: true; colorManagement: true; physicallyCorrectLights: true;"
+  debug
+>
+  <a-camera id="camera" look-controls position="0 0 1.8"></a-camera>
+  <a-assets id="assetLoader">
+    <a-asset-item
+      id="toon"
+      src="assets/mesh/toon-processed.gltf"
+    ></a-asset-item>
+  </a-assets>
+  <a-entity
+    id="model"
+    model
+    gltf-model="#toon"
+    envMapIntensity="30"
+    play-all-model-animations
+    cube-env-map="path: /assets/images/;
+                 extension: jpg;
+                 reflectivity: 0.9;"
+  >
+  </a-entity>
+  <a-light
+    id="sjTextLight"
+    type="spot"
+    intensity="15"
+    position="-1.1 0.8 1"
+    color="#055eea"
+  ></a-light>
+  <a-light
+    id="sjRingsLight"
+    type="spot"
+    intensity="20"
+    position="-1.1 0.3 1"
+    color="#F89A28"
+  ></a-light>
+  <a-light
+    id="converseLight"
+    type="spot"
+    intensity="20"
+    position="2 0.8 3"
+    color="#FFFFFF"
+  ></a-light>
+  <!-- <a-plane
+    height="200"
+    width="200"
+    position="0 0 -0.5"
+    shadow="receive:true"
+    color="#444444"
+  ></a-plane> -->
+
+  <a-light
+    id="sun"
+    type="directional"
+    intensity="5"
+    position="1 30 50"
+    shadow
+  ></a-light>
+  <a-light
+    id="shoeLight"
+    type="spot"
+    intensity="20"
+    position="0 2 3.5"
+  ></a-light>
+  <a-light
+    id="ringsSpotLight"
+    type="spot"
+    intensity="10"
+    position="0 0 0.5"
+  ></a-light>
+  <a-light type="ambient" intensity="1" castShadow="true"></a-light>
+</a-scene>
