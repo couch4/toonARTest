@@ -1223,6 +1223,11 @@ aframe-extras@^6.1.1:
   dependencies:
     three-pathfinding "^0.7.0"
 
+aframe-layers-component@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/aframe-layers-component/-/aframe-layers-component-1.0.0.tgz#fe25c8f10aa1ddb0d88a46acfd018d5d556c7090"
+  integrity sha512-HEB0kbbYwOJUyKUNQmYgSluRjWw6gKWg9OgMkUHRKrMmPJwvzl6zon/zPzmk6UrkGamEuzT/tn9UKoNCBiALlg==
+
 aframe@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/aframe/-/aframe-1.2.0.tgz#795027f656d51d59820536e7e6288744f78e80ae"
