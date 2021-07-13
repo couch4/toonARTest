@@ -3,12 +3,9 @@ import 'aframe-extras'
 import { animateIn } from './animate'
 import sceneHtml from './scene.html'
 
-console.log('AFRAME', sceneHtml)
-
 AFRAME.registerComponent('model', {
   init: () => {
     model.addEventListener('model-loaded', () => {
-      console.log(model, animateIn)
       animateIn(model.object3D, model.sceneEl)
     })
   },

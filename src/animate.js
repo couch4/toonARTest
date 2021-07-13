@@ -2,8 +2,6 @@ import {
   AnimationMixer,
   Clock,
   EdgesGeometry,
-  Layers,
-  Object3D,
   LineSegments,
   LineBasicMaterial,
   ReinhardToneMapping,
@@ -12,8 +10,9 @@ import {
 } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
+import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass'
 import { gsap, Elastic, Expo } from 'gsap'
+import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
 
 let vars = {
   speed: 1,
@@ -30,6 +29,7 @@ const speedUp = () => {
     delay: 6,
     ease: Expo.easeIn,
     onStart: () => {
+      action.reset().play()
       action.paused = false
       setTimeout(() => {
         const [pixels, shoeMesh, tuneSquad] = shoeEl.children
@@ -42,7 +42,7 @@ const speedUp = () => {
         const six = shoeMesh.children.filter((val) => val.name === '6')[0]
         const sixScale = shoeState === 0 ? 1 : 0
         gsap.set(six.scale, { x: sixScale, y: sixScale, z: sixScale })
-      }, 800)
+      }, 1100)
     },
     onComplete: slowDown,
   })
@@ -65,6 +65,14 @@ const getEdges = (mesh, color) => {
   const edges = new EdgesGeometry(mesh.geometry)
   const line = new LineSegments(edges, new LineBasicMaterial({ color }))
   mesh.add(line)
+}
+
+const setLayer = (obj) => {
+  obj.traverse(function (object) {
+    if (object.isMesh) {
+      object.layers.enable(1)
+    }
+  })
 }
 
 const getRingEdges = (sjRings) => {
@@ -129,48 +137,95 @@ export const animateIn = (model, sceneEl) => {
   const scene = sceneEl.object3D
   shoeEl = shoe
   const tuneSquad = shoe.children[2]
+  const pixels = shoe.children[0]
   tuneSquad.scale.set(new Vector3(0, 0, 0))
 
   getEdges(sjText.children[0].children[1])
 
   renderer.toneMapping = ReinhardToneMapping
 
-  const bloomLayer = new Layers()
-  bloomLayer.set(1)
-  camera.layers.enable(1)
+  //   camera.layers.enable(0)
+  //   camera.layers.enable(1)
 
-  renderer.autoClear = false
-  //   const bloomLayer = new Layers()
-  //   bloomLayer.set(1)
-  //   console.log('spaceJam', spaceJam, spaceJam.layers)
+  //   scene.traverse(function (object) {
+  //     if (object.isLight) {
+  //       object.layers.enable(1)
+  //     }
+  //   })
 
-  //   removeEntity(scene, shoe)
-  //   shoe.dispose()
-  shoe.layers.set(1)
+  //   renderer.autoClear = false
+  //   setLayer(pixels)
+  //   setLayer(converse)
+  //   setLayer(ticker)
 
-  spaceJam.layers.set(1)
-  rings.layers.set(0)
+  //   const renderPass = new RenderPass(scene, camera)
 
-  const composer = new EffectComposer(renderer)
-  // @ts-ignore
-  const renderPass = new RenderPass(scene, camera)
-  composer.addPass(renderPass)
+  const params = {
+    exposure: 1,
+    bloomStrength: 5,
+    bloomThreshold: 0,
+    bloomRadius: 0,
+    scene: 'Scene with Glow',
+  }
 
-  var bloom = new UnrealBloomPass(
-    new Vector2(window.innerWidth, window.innerHeight),
-    1.5,
-    0.4,
-    0.85
-  )
-  bloom.exposure = 1
-  bloom.threshold = 0.21
-  bloom.strength = 5
-  bloom.radius = 0.55
-  bloom.renderToScreen = true
+  //   const bloom = new BloomPass(
+  //     new Vector2(window.innerWidth, window.innerHeight),
+  //     1.5,
+  //     0.4,
+  //     0.85
+  //   )
+  //   bloom.exposure = params.exposure
+  //   bloom.threshold = params.bloomThreshold
+  //   bloom.strength = params.bloomStrength
+  //   bloom.radius = params.bloomRadius
+  //   bloom.renderToScreen = true
 
-  composer.addPass(bloom)
-  composer.render()
-  renderer.autoClear = false
+  //   const composer = new EffectComposer(renderer)
+  //   composer.setSize(window.innerWidth, window.innerHeight)
+  //   composer.addPass(renderPass)
+  //   composer.addPass(bloom)
+
+  const gui = new GUI()
+
+  const folder = gui.addFolder('Exposure')
+  //   const folder2 = gui.addFolder('glass Texture')
+
+  folder.add(params, 'exposure', 0.1, 2).onChange(function (value) {
+    renderer.toneMappingExposure = Math.pow(value, 4.0)
+    composer.render()
+  })
+
+  //   folder.add(params, 'bloomThreshold', 0.0, 1.0).onChange(function (value) {
+  //     bloom.threshold = Number(value)
+  //     composer.render()
+  //   })
+
+  //   folder.add(params, 'bloomStrength', 0.0, 10.0).onChange(function (value) {
+  //     bloom.strength = Number(value)
+  //     composer.render()
+  //   })
+
+  //   folder
+  //     .add(params, 'bloomRadius', 0.0, 1.0)
+  //     .step(0.01)
+  //     .onChange(function (value) {
+  //       bloom.radius = Number(value)
+  //       composer.render()
+  //     })
+
+  //   const materialParams = {
+  //     reflectivity: 0.5,
+  //     roughness: 0.5,
+  //     alpha: 0.5,
+  //   }
+
+  //   const glass = scene.traverse(function (object) {
+  //     if (object.isMaterial) {
+  //       console.log(object)
+  //     }
+  //   })
+
+  //   folder2.add(materialParams, 'reflectivity', 0, 1).onChange((value) => {})
 
   ////////////////////////////// SETUP GLTF ANIMATION
 
@@ -179,11 +234,7 @@ export const animateIn = (model, sceneEl) => {
   action.clampWhenFinished = true
   action.enabled = true
   action.play()
-  setTimeout(() => {
-    action.paused = true
-  }, 1000)
-
-  mixer.setTime(0)
+  action.paused = true
 
   const clock = new Clock()
 
@@ -313,24 +364,24 @@ export const animateIn = (model, sceneEl) => {
     converse.rotation.y = 0 - wave * 0.9
     converse.position.y = 0.74 - wave * 0.4
 
-    //continue animation if visible
-    if (visible === true) {
-      requestAnimationFrame(step)
-    }
-
     mixer.update(delta)
 
     main.visible = true
 
-    renderer.clear()
+    // renderer.clear()
 
-    camera.layers.set(1)
-    composer.render()
+    // camera.layers.set(1)
+    // composer.render()
 
     // Clear depth cache
-    renderer.clearDepth()
-    camera.layers.set(0)
-    renderer.render(scene, camera)
+    // renderer.clearDepth()
+    // camera.layers.set(0)
+    // renderer.render(scene, camera)
+
+    //continue animation if visible
+    if (visible === true) {
+      requestAnimationFrame(step)
+    }
   }
   visible = true
   spinLogo(converse)
