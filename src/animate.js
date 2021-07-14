@@ -13,6 +13,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass'
 import { gsap, Elastic, Expo } from 'gsap'
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
+import { getPixelMaterial } from './shaders'
 
 let vars = {
   speed: 1,
@@ -83,6 +84,14 @@ const getRingEdges = (sjRings) => {
   }
 }
 
+const setPixelMaterial = (pixels, camera) => {
+  const pixelArr = pixels.children
+  for (let i = 0; i < pixelArr.length; i++) {
+    const pixel = pixelArr[i]
+    pixel.material = getPixelMaterial(camera)
+  }
+}
+
 const spinLogo = (converse) => {
   if (!visible) return null
 
@@ -143,6 +152,8 @@ export const animateIn = (model, sceneEl) => {
   getEdges(sjText.children[0].children[1])
 
   renderer.toneMapping = ReinhardToneMapping
+
+  setPixelMaterial(pixels, camera)
 
   //   camera.layers.enable(0)
   //   camera.layers.enable(1)
@@ -227,14 +238,153 @@ export const animateIn = (model, sceneEl) => {
 
   //   folder2.add(materialParams, 'reflectivity', 0, 1).onChange((value) => {})
 
+  const parameters = {
+    c: -0.3,
+    p: -2.11,
+    bs: false,
+    fs: true,
+    nb: false,
+    ab: true,
+    mv: true,
+    color: '#2fa5e1',
+    thickness: 2,
+    edgeIntensity: 0.95,
+    opacity: 0.8,
+  }
+
+  const changePixelMaterial = (param, value) => {
+    const pixelArr = pixels.children
+    for (let i = 0; i < pixelArr.length; i++) {
+      const pixel = pixelArr[i]
+      if (param === 'color') {
+        pixel.material.uniforms.glowColor.value.setHex(value.replace('#', '0x'))
+      } else if (param === 'side') {
+        pixel.material.side = value
+      } else if (param === 'blending') {
+        pixel.material.blending = value
+      } else {
+        pixel.material.uniforms[param].value = parameters[param]
+      }
+    }
+  }
+
+  const top = gui.addFolder('Glow Shader Attributes')
+
+  const cGUI = top
+    .add(parameters, 'c')
+    .min(-1)
+    .max(1.0)
+    .step(0.01)
+    .name('inner Glow distance')
+    .listen()
+  cGUI.onChange(function (value) {
+    changePixelMaterial('c')
+  })
+
+  const pGUI = top
+    .add(parameters, 'p')
+    .min(-6)
+    .max(6.0)
+    .step(0.01)
+    .name('inner glow intensity')
+    .listen()
+  pGUI.onChange(function (value) {
+    changePixelMaterial('p')
+  })
+
+  const glowColor = top
+    .addColor(parameters, 'color')
+    .name('Glow Color')
+    .listen()
+  glowColor.onChange(function (value) {
+    changePixelMaterial('color', value)
+  })
+  top.open()
+
+  const thickGUI = top
+    .add(parameters, 'thickness')
+    .name('edge thickness')
+    .min(0)
+    .max(10)
+    .listen()
+  thickGUI.onChange(function (value) {
+    changePixelMaterial('thickness', value)
+  })
+  top.open()
+
+  const edgeGUI = top
+    .add(parameters, 'edgeIntensity')
+    .name('edge Intensity')
+    .min(-1)
+    .max(1)
+    .step(0.01)
+    .listen()
+  edgeGUI.onChange(function (value) {
+    changePixelMaterial('edgeIntensity', value)
+  })
+  top.open()
+
+  const opacityGUI = top
+    .add(parameters, 'opacity')
+    .name('opacity')
+    .min(0.0)
+    .max(1)
+    .listen()
+  opacityGUI.onChange(function (value) {
+    changePixelMaterial('opacity', value)
+  })
+  top.open()
+
+  // toggle front side / back side
+  const folder1 = gui.addFolder('Render side')
+  const fsGUI = folder1.add(parameters, 'fs').name('THREE.FrontSide').listen()
+  fsGUI.onChange(function (value) {
+    if (value) {
+      bsGUI.setValue(false)
+      changePixelMaterial('side', THREE.FrontSide)
+    }
+  })
+  const bsGUI = folder1.add(parameters, 'bs').name('THREE.BackSide').listen()
+  bsGUI.onChange(function (value) {
+    if (value) {
+      fsGUI.setValue(false)
+      changePixelMaterial('side', THREE.BackSide)
+    }
+  })
+  folder1.open()
+
+  // toggle normal blending / additive blending
+  const folder2 = gui.addFolder('Blending style')
+  const nbGUI = folder2
+    .add(parameters, 'nb')
+    .name('THREE.NormalBlending')
+    .listen()
+  nbGUI.onChange(function (value) {
+    if (value) {
+      abGUI.setValue(false)
+      changePixelMaterial('blending', THREE.NormalBlending)
+    }
+  })
+  const abGUI = folder2
+    .add(parameters, 'ab')
+    .name('THREE.AdditiveBlending')
+    .listen()
+  abGUI.onChange(function (value) {
+    if (value) {
+      nbGUI.setValue(false)
+      changePixelMaterial('blending', THREE.AdditiveBlending)
+    }
+  })
+  folder2.open()
+
   ////////////////////////////// SETUP GLTF ANIMATION
 
   const mixer = new AnimationMixer(main)
   action = mixer.clipAction(main.animations[0])
-  action.clampWhenFinished = true
-  action.enabled = true
-  action.play()
-  action.paused = true
+  // action.clampWhenFinished = true
+  // action.enabled = true
+  // action.play()
+  // action.paused = true
 
   const clock = new Clock()
 
@@ -333,7 +483,7 @@ export const animateIn = (model, sceneEl) => {
     ease: Expo.easeOut,
   })
 
-  speedUp()
+  // speedUp()
 
   //   sjRings.rotation.x = 2.5
 
@@ -386,6 +536,13 @@ export const animateIn = (model, sceneEl) => {
   visible = true
   spinLogo(converse)
   window.requestAnimationFrame(step)
+}
+
+const update = () => {
+  // controls.update()
+  // stats.update()
+  // pixelGlow.material.uniforms.viewVector.value =
+  // 	new THREE.Vector3().subVectors( camera.position, pixelGlow.position )
 }
 
 export const animateOut = (model) => {
