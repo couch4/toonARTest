@@ -14,6 +14,7 @@ import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass'
 import { gsap, Elastic, Expo } from 'gsap'
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
 import { getPixelMaterial } from './shaders'
+import Environment from './assets/images/posx.jpg'
 
 let vars = {
   speed: 1,
@@ -63,9 +64,21 @@ const slowDown = () => {
 }
 
 const getEdges = (mesh, color) => {
+  console.log('color', color)
+
   const edges = new EdgesGeometry(mesh.geometry)
-  const line = new LineSegments(edges, new LineBasicMaterial({ color }))
+  const line = new LineSegments(edges, new LineBasicMaterial({ color: color }))
   mesh.add(line)
+}
+
+const getObject = (main, name) => {
+  return main.traverse((object) => {
+    console.log('getobject', main, object, name)
+
+    if (object.name === name) {
+      return object
+    }
+  })
 }
 
 const setLayer = (obj) => {
@@ -76,11 +89,20 @@ const setLayer = (obj) => {
   })
 }
 
+const setEnv = (main) => {
+  main.traverse((object) => {
+    if (object.isMesh) {
+      console.log(`environment`, object, Environment)
+      object.material.envMap = Environment
+    }
+  })
+}
+
 const getRingEdges = (sjRings) => {
   const rings = sjRings.children
   for (let i = 0; i < rings.length; i++) {
     const ring = rings[i]
-    getEdges(ring, 0xd5c04e)
+    getEdges(ring, '0xd5c04e')
   }
 }
 
@@ -98,15 +120,15 @@ const spinLogo = (converse) => {
   const delay = 8
   gsap.to(converse.position, 1, { z: -0.2, delay, ease: Expo.easeOut })
   gsap.to(converse.scale, 1, {
-    x: 0.5,
-    y: 0.5,
-    z: 0.5,
+    x: 0.2,
+    y: 0.2,
+    z: 0.2,
     delay,
     ease: Expo.easeOut,
   })
   gsap.to(converse, 1, { alpha: 0, ease: Expo.easeOut })
   gsap.to(converse.rotation, 1, {
-    z: 20,
+    y: -18,
     delay,
     ease: Expo.easeOut,
     onComplete: () => {
@@ -115,10 +137,10 @@ const spinLogo = (converse) => {
         x: 1,
         ease: Expo.easeOut,
       })
-      gsap.to(converse.scale, 1, { x: 2, y: 2, z: 2, ease: Expo.easeOut })
+      gsap.to(converse.scale, 1, { x: 1.6, y: 1.6, z: 1, ease: Expo.easeOut })
       gsap.to(converse, 1, { alpha: 1, ease: Expo.easeOut })
       gsap.to(converse.rotation, 0.8, {
-        z: 0.5,
+        y: -0.2,
         ease: Expo.easeOut,
         onComplete: () => {
           spinLogo(converse)
@@ -138,8 +160,23 @@ const resetAll = (objects) => {
 export const animateIn = (model, sceneEl) => {
   const main = model.children[0]
 
-  const [basketballs, spaceJam, ticker, converse, rings, shoe] = main.children
+  const basketballs = main.children.filter(
+    (val) => val.name === 'basketballs'
+  )[0]
+  const spaceJam = main.children.filter((val) => val.name === 'spaceJam')[0]
+  const ticker = main.children.filter((val) => val.name === 'ticker')[0]
+  const converse = main.children.filter((val) => val.name === 'converse')[0]
+  const rings = main.children.filter((val) => val.name === 'rings')[0]
+  const shoe = main.children.filter((val) => val.name === 'shoe')[0]
+
+  const lastRing = rings.children[4]
+  lastRing.scale.set(new Vector3(2, 2, 2))
+
+  console.log(basketballs, spaceJam, ticker, converse, rings, shoe)
+
   const [sjText, sjRings, sjNewLegacy] = spaceJam.children
+
+  console.log('main', main.children, spaceJam.children)
 
   const renderer = sceneEl.renderer
   const camera = document.querySelector('[camera]').getObject3D('camera')
@@ -239,17 +276,17 @@ export const animateIn = (model, sceneEl) => {
   //   folder2.add(materialParams, 'reflectivity', 0, 1).onChange((value) => {})
 
   const parameters = {
-    c: -0.3,
-    p: -2.11,
+    c: -0.09,
+    p: -2.24,
     bs: false,
     fs: true,
     nb: false,
     ab: true,
     mv: true,
     color: '#2fa5e1',
-    thickness: 2,
-    edgeIntensity: 0.95,
-    opacity: 0.8,
+    thickness: 1,
+    edgeIntensity: 1,
+    opacity: 0.62,
   }
 
   const changePixelMaterial = (param, value) => {
@@ -381,18 +418,19 @@ export const animateIn = (model, sceneEl) => {
 
   const mixer = new AnimationMixer(main)
   action = mixer.clipAction(main.animations[0])
-  // action.clampWhenFinished = true
-  // action.enabled = true
-  // action.play()
-  // action.paused = true
+  action.clampWhenFinished = true
+  action.enabled = true
+  action.play()
+  action.paused = true
 
   const clock = new Clock()
 
   const animateRings = (rings, wave) => {
     for (let i = 0; i < rings.length; i++) {
       let ringScale = 0.9
-      if (i === 5) ringScale = 5.5
       const ring = rings[i]
+      if (ring.name === 'ring5') ringScale = 2
+
       ring.scale.y = ringScale - wave + 0.1 * i
       ring.scale.x = ringScale - wave + 0.1 * i
     }
@@ -438,10 +476,14 @@ export const animateIn = (model, sceneEl) => {
     delay: 1.2,
     ease: Elastic.easeOut,
   })
+  gsap.set(converse.position, {
+    z: 0.2,
+    x: 1,
+  })
   gsap.to(converse.scale, 2, {
-    x: 2,
-    y: 2,
-    z: 2,
+    x: 1.6,
+    y: 1.6,
+    z: 1,
     delay: 1.4,
     ease: Elastic.easeOut,
   })
@@ -454,7 +496,7 @@ export const animateIn = (model, sceneEl) => {
   })
   gsap.to(ticker.scale, 2, {
     x: 1.2,
-    y: 1.2,
+    y: 1,
     z: 1.2,
     delay: 1.9,
     ease: Expo.easeOut,
@@ -483,7 +525,7 @@ export const animateIn = (model, sceneEl) => {
     ease: Expo.easeOut,
   })
 
-  // speedUp()
+  speedUp()
 
   //   sjRings.rotation.x = 2.5
 
@@ -497,7 +539,7 @@ export const animateIn = (model, sceneEl) => {
     shoe.rotation.x = 0 - wave2 * 1
     shoe.rotation.z = 0 - wave2 * 0.5
 
-    ticker.rotation.z -= delta * (vars.speed / 10)
+    ticker.rotation.y -= delta * (vars.speed / 10)
     basketballs.rotation.y -= delta * (vars.speed / 5)
     animateRings(rings.children, wave)
     spinBasketballs(basketballs.children, delta)
@@ -510,8 +552,8 @@ export const animateIn = (model, sceneEl) => {
     spaceJam.rotation.z = 0 - wave * 0.1
     spaceJam.position.y = 0.74 - wave * 0.3
 
-    converse.rotation.x = 1.7 - wave * 0.5
-    converse.rotation.y = 0 - wave * 0.9
+    converse.rotation.x = 0 - wave * 0.5
+    converse.rotation.z = 0 - wave * 0.9
     converse.position.y = 0.74 - wave * 0.4
 
     mixer.update(delta)
