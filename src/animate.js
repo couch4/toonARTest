@@ -233,15 +233,15 @@ export const animateIn = (model, sceneEl) => {
   //   composer.addPass(renderPass)
   //   composer.addPass(bloom)
 
-  const gui = new GUI()
+  // const gui = new GUI()
 
-  const folder = gui.addFolder('Exposure')
+  // const folder = gui.addFolder('Exposure')
   //   const folder2 = gui.addFolder('glass Texture')
 
-  folder.add(params, 'exposure', 0.1, 2).onChange(function (value) {
-    renderer.toneMappingExposure = Math.pow(value, 4.0)
-    composer.render()
-  })
+  // folder.add(params, 'exposure', 0.1, 2).onChange(function (value) {
+  //   renderer.toneMappingExposure = Math.pow(value, 4.0)
+  //   composer.render()
+  // })
 
   //   folder.add(params, 'bloomThreshold', 0.0, 1.0).onChange(function (value) {
   //     bloom.threshold = Number(value)
@@ -289,130 +289,130 @@ export const animateIn = (model, sceneEl) => {
     opacity: 0.62,
   }
 
-  const changePixelMaterial = (param, value) => {
-    const pixelArr = pixels.children
-    for (let i = 0; i < pixelArr.length; i++) {
-      const pixel = pixelArr[i]
-      if (param === 'color') {
-        pixel.material.uniforms.glowColor.value.setHex(value.replace('#', '0x'))
-      } else if (param === 'side') {
-        pixel.material.side = value
-      } else if (param === 'blending') {
-        pixel.material.blending = value
-      } else {
-        pixel.material.uniforms[param].value = parameters[param]
-      }
-    }
-  }
+  // const changePixelMaterial = (param, value) => {
+  //   const pixelArr = pixels.children
+  //   for (let i = 0; i < pixelArr.length; i++) {
+  //     const pixel = pixelArr[i]
+  //     if (param === 'color') {
+  //       pixel.material.uniforms.glowColor.value.setHex(value.replace('#', '0x'))
+  //     } else if (param === 'side') {
+  //       pixel.material.side = value
+  //     } else if (param === 'blending') {
+  //       pixel.material.blending = value
+  //     } else {
+  //       pixel.material.uniforms[param].value = parameters[param]
+  //     }
+  //   }
+  // }
 
-  const top = gui.addFolder('Glow Shader Attributes')
+  // const top = gui.addFolder('Glow Shader Attributes')
 
-  const cGUI = top
-    .add(parameters, 'c')
-    .min(-1)
-    .max(1.0)
-    .step(0.01)
-    .name('inner Glow distance')
-    .listen()
-  cGUI.onChange(function (value) {
-    changePixelMaterial('c')
-  })
+  // const cGUI = top
+  //   .add(parameters, 'c')
+  //   .min(-1)
+  //   .max(1.0)
+  //   .step(0.01)
+  //   .name('inner Glow distance')
+  //   .listen()
+  // cGUI.onChange(function (value) {
+  //   changePixelMaterial('c')
+  // })
 
-  const pGUI = top
-    .add(parameters, 'p')
-    .min(-6)
-    .max(6.0)
-    .step(0.01)
-    .name('inner glow intensity')
-    .listen()
-  pGUI.onChange(function (value) {
-    changePixelMaterial('p')
-  })
+  // const pGUI = top
+  //   .add(parameters, 'p')
+  //   .min(-6)
+  //   .max(6.0)
+  //   .step(0.01)
+  //   .name('inner glow intensity')
+  //   .listen()
+  // pGUI.onChange(function (value) {
+  //   changePixelMaterial('p')
+  // })
 
-  const glowColor = top
-    .addColor(parameters, 'color')
-    .name('Glow Color')
-    .listen()
-  glowColor.onChange(function (value) {
-    changePixelMaterial('color', value)
-  })
-  top.open()
+  // const glowColor = top
+  //   .addColor(parameters, 'color')
+  //   .name('Glow Color')
+  //   .listen()
+  // glowColor.onChange(function (value) {
+  //   changePixelMaterial('color', value)
+  // })
+  // top.open()
 
-  const thickGUI = top
-    .add(parameters, 'thickness')
-    .name('edge thickness')
-    .min(0)
-    .max(10)
-    .listen()
-  thickGUI.onChange(function (value) {
-    changePixelMaterial('thickness', value)
-  })
-  top.open()
+  // const thickGUI = top
+  //   .add(parameters, 'thickness')
+  //   .name('edge thickness')
+  //   .min(0)
+  //   .max(10)
+  //   .listen()
+  // thickGUI.onChange(function (value) {
+  //   changePixelMaterial('thickness', value)
+  // })
+  // top.open()
 
-  const edgeGUI = top
-    .add(parameters, 'edgeIntensity')
-    .name('edge Intensity')
-    .min(-1)
-    .max(1)
-    .step(0.01)
-    .listen()
-  edgeGUI.onChange(function (value) {
-    changePixelMaterial('edgeIntensity', value)
-  })
-  top.open()
+  // const edgeGUI = top
+  //   .add(parameters, 'edgeIntensity')
+  //   .name('edge Intensity')
+  //   .min(-1)
+  //   .max(1)
+  //   .step(0.01)
+  //   .listen()
+  // edgeGUI.onChange(function (value) {
+  //   changePixelMaterial('edgeIntensity', value)
+  // })
+  // top.open()
 
-  const opacityGUI = top
-    .add(parameters, 'opacity')
-    .name('opacity')
-    .min(0.0)
-    .max(1)
-    .listen()
-  opacityGUI.onChange(function (value) {
-    changePixelMaterial('opacity', value)
-  })
-  top.open()
+  // const opacityGUI = top
+  //   .add(parameters, 'opacity')
+  //   .name('opacity')
+  //   .min(0.0)
+  //   .max(1)
+  //   .listen()
+  // opacityGUI.onChange(function (value) {
+  //   changePixelMaterial('opacity', value)
+  // })
+  // top.open()
 
-  // toggle front side / back side
-  const folder1 = gui.addFolder('Render side')
-  const fsGUI = folder1.add(parameters, 'fs').name('THREE.FrontSide').listen()
-  fsGUI.onChange(function (value) {
-    if (value) {
-      bsGUI.setValue(false)
-      changePixelMaterial('side', THREE.FrontSide)
-    }
-  })
-  const bsGUI = folder1.add(parameters, 'bs').name('THREE.BackSide').listen()
-  bsGUI.onChange(function (value) {
-    if (value) {
-      fsGUI.setValue(false)
-      changePixelMaterial('side', THREE.BackSide)
-    }
-  })
-  folder1.open()
+  // // toggle front side / back side
+  // const folder1 = gui.addFolder('Render side')
+  // const fsGUI = folder1.add(parameters, 'fs').name('THREE.FrontSide').listen()
+  // fsGUI.onChange(function (value) {
+  //   if (value) {
+  //     bsGUI.setValue(false)
+  //     changePixelMaterial('side', THREE.FrontSide)
+  //   }
+  // })
+  // const bsGUI = folder1.add(parameters, 'bs').name('THREE.BackSide').listen()
+  // bsGUI.onChange(function (value) {
+  //   if (value) {
+  //     fsGUI.setValue(false)
+  //     changePixelMaterial('side', THREE.BackSide)
+  //   }
+  // })
+  // folder1.open()
 
-  // toggle normal blending / additive blending
-  const folder2 = gui.addFolder('Blending style')
-  const nbGUI = folder2
-    .add(parameters, 'nb')
-    .name('THREE.NormalBlending')
-    .listen()
-  nbGUI.onChange(function (value) {
-    if (value) {
-      abGUI.setValue(false)
-      changePixelMaterial('blending', THREE.NormalBlending)
-    }
-  })
-  const abGUI = folder2
-    .add(parameters, 'ab')
-    .name('THREE.AdditiveBlending')
-    .listen()
-  abGUI.onChange(function (value) {
-    if (value) {
-      nbGUI.setValue(false)
-      changePixelMaterial('blending', THREE.AdditiveBlending)
-    }
-  })
-  folder2.open()
+  // // toggle normal blending / additive blending
+  // const folder2 = gui.addFolder('Blending style')
+  // const nbGUI = folder2
+  //   .add(parameters, 'nb')
+  //   .name('THREE.NormalBlending')
+  //   .listen()
+  // nbGUI.onChange(function (value) {
+  //   if (value) {
+  //     abGUI.setValue(false)
+  //     changePixelMaterial('blending', THREE.NormalBlending)
+  //   }
+  // })
+  // const abGUI = folder2
+  //   .add(parameters, 'ab')
+  //   .name('THREE.AdditiveBlending')
+  //   .listen()
+  // abGUI.onChange(function (value) {
+  //   if (value) {
+  //     nbGUI.setValue(false)
+  //     changePixelMaterial('blending', THREE.AdditiveBlending)
+  //   }
+  // })
+  // folder2.open()
 
   ////////////////////////////// SETUP GLTF ANIMATION
 
@@ -429,7 +429,7 @@ export const animateIn = (model, sceneEl) => {
     for (let i = 0; i < rings.length; i++) {
       let ringScale = 0.9
       const ring = rings[i]
-      if (ring.name === 'ring5') ringScale = 2
+      if (ring.name === 'ring5') ringScale = 1.2
 
       ring.scale.y = ringScale - wave + 0.1 * i
       ring.scale.x = ringScale - wave + 0.1 * i

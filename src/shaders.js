@@ -22,6 +22,10 @@ export const getPixelMaterial = (camera) => {
 }
 
 export const pixelVertexShader = `
+    #ifdef GL_ES
+    precision highp float;
+    #endif
+
     varying vec3 viewVector;
     varying vec2 vUv;
     uniform float c;
