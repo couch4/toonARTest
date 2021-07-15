@@ -43,7 +43,7 @@ export const pixelVertexShader = `
 `
 
 export const pixelFragmentShader = `
-    //#extension GL_OES_standard_derivatives : enable
+    #extension GL_OES_standard_derivatives : enable
         
     varying vec2 vUv;
     uniform float thickness;
