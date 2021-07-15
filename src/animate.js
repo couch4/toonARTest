@@ -2,6 +2,8 @@ import {
   AnimationMixer,
   Clock,
   EdgesGeometry,
+  TextureLoader,
+  PMREMGenerator,
   LineSegments,
   LineBasicMaterial,
   ReinhardToneMapping,
@@ -64,8 +66,6 @@ const slowDown = () => {
 }
 
 const getEdges = (mesh, color) => {
-  console.log('color', color)
-
   const edges = new EdgesGeometry(mesh.geometry)
   const line = new LineSegments(edges, new LineBasicMaterial({ color: color }))
   mesh.add(line)
@@ -89,11 +89,13 @@ const setLayer = (obj) => {
   })
 }
 
-const setEnv = (main) => {
+const setEnv = (main, texture) => {
   main.traverse((object) => {
     if (object.isMesh) {
-      console.log(`environment`, object, Environment)
-      object.material.envMap = Environment
+      console.log(`environment`, object, texture)
+      object.material.envMap = texture
+      object.material.envMapIntensity = 0.5
+      object.material.needsUpdate = true
     }
   })
 }
@@ -102,7 +104,7 @@ const getRingEdges = (sjRings) => {
   const rings = sjRings.children
   for (let i = 0; i < rings.length; i++) {
     const ring = rings[i]
-    getEdges(ring, '0xd5c04e')
+    getEdges(ring, 0xd5c04e)
   }
 }
 
@@ -111,6 +113,7 @@ const setPixelMaterial = (pixels, camera) => {
   for (let i = 0; i < pixelArr.length; i++) {
     const pixel = pixelArr[i]
     pixel.material = getPixelMaterial(camera)
+    pixel.material.needsUpdate = true
   }
 }
 
@@ -126,7 +129,6 @@ const spinLogo = (converse) => {
     delay,
     ease: Expo.easeOut,
   })
-  gsap.to(converse, 1, { alpha: 0, ease: Expo.easeOut })
   gsap.to(converse.rotation, 1, {
     y: -18,
     delay,
@@ -138,7 +140,6 @@ const spinLogo = (converse) => {
         ease: Expo.easeOut,
       })
       gsap.to(converse.scale, 1, { x: 1.6, y: 1.6, z: 1, ease: Expo.easeOut })
-      gsap.to(converse, 1, { alpha: 1, ease: Expo.easeOut })
       gsap.to(converse.rotation, 0.8, {
         y: -0.2,
         ease: Expo.easeOut,
@@ -186,7 +187,7 @@ export const animateIn = (model, sceneEl) => {
   const pixels = shoe.children[0]
   tuneSquad.scale.set(new Vector3(0, 0, 0))
 
-  getEdges(sjText.children[0].children[1])
+  getEdges(sjText.children[0].children[1], 0x79b1ea)
 
   renderer.toneMapping = ReinhardToneMapping
 
@@ -202,11 +203,25 @@ export const animateIn = (model, sceneEl) => {
   //   })
 
   //   renderer.autoClear = false
-  //   setLayer(pixels)
-  //   setLayer(converse)
-  //   setLayer(ticker)
+  // setEnv(pixels)
+  // setEnv(converse)
+  // setEnv(ticker)
 
-  //   const renderPass = new RenderPass(scene, camera)
+  const pmremGenerator = new THREE.PMREMGenerator(renderer)
+  pmremGenerator.compileEquirectangularShader()
+
+  const envMap = new TextureLoader().load(
+    'assets/images/posx.jpg',
+    (texture) => {
+      const exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture)
+      const exrBackground = exrCubeRenderTarget.texture
+      const newEnvMap = exrCubeRenderTarget ? exrCubeRenderTarget.texture : null
+
+      setEnv(basketballs, newEnvMap)
+      setEnv(converse, newEnvMap)
+      setEnv(ticker, newEnvMap)
+    }
+  )
 
   const params = {
     exposure: 1,
